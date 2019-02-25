@@ -1,7 +1,7 @@
 #ifndef QZXING_H
 #define QZXING_H
 //使用静态库则定义该宏，也可以删除接口类定义的QZXINGSHARED_EXPORT关键字和global头文件
-//#define DISABLE_LIBRARY_FEATURES
+#define DISABLE_LIBRARY_FEATURES
 
 #include "QZXing_global.h"
 #include <QObject>

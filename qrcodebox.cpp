@@ -48,7 +48,7 @@ void QRcodeBox::generateString(QString text, int version, int failoverLevel, dou
     this->color = color;
     this->iconAddr = iconAddr;
     QRecLevel level;//定义枚举变量
-    //根据传来容错级别的值，确定要使用的枚举值。其实这里的参数和枚举值的数字是对应的，直接使用参数
+    //根据传来容错级别的值，确定要使用的枚举值。其实这里的参数和枚举值的数字是对应的，可以直接使用参数
     switch(failoverLevel)
     {
     case 0:
@@ -64,21 +64,25 @@ void QRcodeBox::generateString(QString text, int version, int failoverLevel, dou
         level = QR_ECLEVEL_H;
         break;
     default:
-        level = QR_ECLEVEL_L;//若传来的容许级别有误，默认用最低级别
+        level = QR_ECLEVEL_L;//若传来的容错级别有误，默认用最低级别
         break;
     }
 
-    //toStdString 是将QString的内容经过toUtf8()的中间转换变成c++ std命名空间的string，然后在转成char*
-    //version表示二维码的版本，如果编码的内容太多一致所选版本存放不下时，会自动使用更高的版本
-    //这里使用QR_MODE_8编码模式，对于非字母数字都使用8bit 编码utf8字符 最后一个是敏感事件(?)
+    /* toStdString 是将QString的内容经过toUtf8()的中间转换变成c++ std命名空间的string，
+     * 然后在转成const char*。
+     * version:二维码的版本,如果编码的内容太多导致所选版本存放不下时,会自动使用更高的版本。
+     * 这里使用QR_MODE_8编码模式,对于非字母数字都使用8bit 编码utf8字符 最后一个是敏感事件(?)
+     */
     qr = QRcode_encodeString(text.toStdString().c_str(),version,level,QR_MODE_8,1);
-    //判断图片是否成功，因为drawQRcode()函数一旦重绘就会执行，而结束提示对话框，界面就会重绘一次
-    //这样一旦图片加载失败就会不停的弹出提示框，所以把提示框放在绘制函数的外边，每执行一次生成只会执行一次
+    /* 判断图片是否成功，因为drawQRcode()函数一旦重绘就会执行，而结束提示对话框，
+     * 界面就会重绘一次，这样一旦图片加载失败就会不停的弹出提示框，所以把提示框放在
+     * 绘制函数的外边，每执行一次生成只会执行一次
+     */
     if(!iconAddr.isEmpty())
     {
         if(!iconImage.load(iconAddr))
         {
-            QMessageBox::information(0,"QR_code 1.0.0","加载图片失败\n请查看图片格式、路径\n是否正确!!!");
+            QMessageBox::information(0,tr("QR_code 1.0.0"),tr("加载图片失败\n请查看图片格式、路径\n是否正确!!!"));
         }
     }
     update();//更新重绘
@@ -89,7 +93,7 @@ void QRcodeBox::generateString(QString text, int version, int failoverLevel, dou
  *@brief:   绘制二维码
  *@param:   painter:用来绘图
  *@param:   x:二维码左顶点的x坐标
- *@param:   y:二维码左顶点的y坐标 
+ *@param:   y:二维码左顶点的y坐标
  */
 void QRcodeBox::drawQRcode(QPainter &painter, int x, int y)
 {

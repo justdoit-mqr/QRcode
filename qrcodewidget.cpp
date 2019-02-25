@@ -38,13 +38,13 @@ QRcodeWidget::QRcodeWidget(QWidget *parent)
     //六个大部件
     textEdit = new QTextEdit(this);//输入内容
     textEdit->zoomIn(2);//将默认字体大小放大两倍
-    textEdit->setPlaceholderText("By：为何而来 2016.11.6");//设置默认提示
+    textEdit->setPlaceholderText(tr("By：为何而来 2016.11.6"));//设置默认提示
     qrcodeBox = new QRcodeBox(this);//生成二维码区域
-    qrcodeBox->setTitle("二维码区域");
+    qrcodeBox->setTitle(tr("二维码区域"));
     /*qrcodeBox2区域与qrcodeBox完全一致，只是为了存放解析时打开的图片，因为qrcodeBox重写了paintEvent
     如果直接在上面显示打开的图片，会导致重绘，显示生成的二维码，引起混乱,于是使用一个新的区域显示，通过添加
     在同一个布局里，同时只有一个显示来实现区域的变换*/
-    qrcodeBox2 = new QGroupBox("解析二维码图片",this);
+    qrcodeBox2 = new QGroupBox(tr("解析二维码图片"),this);
     imageLabel = new QLabel(this);
     imageLabel->setScaledContents(true);//根据label大小放缩图片
     //设置label的大小策略为忽视，避免默认情况根据图片大小改变布局大小的sizehint
@@ -54,26 +54,28 @@ QRcodeWidget::QRcodeWidget(QWidget *parent)
     qrImagehBoxLayout->addWidget(imageLabel);
     qrcodeBox2->setLayout(qrImagehBoxLayout);
     qrcodeBox2->setVisible(false);//初始化时不显示该区域
-    QGroupBox *failoverBox = new QGroupBox("容错级别",this);//存放容错级别选项
-    QGroupBox *versionAndScaleBox = new QGroupBox("版本及缩放比例",this);//存放版本及伸缩比例
-    QGroupBox *produceBox = new QGroupBox("生成QR码",this);//存放生成按钮等
-    QGroupBox *parseBox = new QGroupBox("解析QR码",this);//存放选择图片按钮等
+    QGroupBox *failoverBox = new QGroupBox(tr("容错级别"),this);//存放容错级别选项
+    QGroupBox *versionAndScaleBox = new QGroupBox(tr("版本及缩放比例"),this);//存放版本及伸缩比例
+    QGroupBox *produceBox = new QGroupBox(tr("生成QR码"),this);//存放生成按钮等
+    QGroupBox *parseBox = new QGroupBox(tr("解析QR码"),this);//存放选择图片按钮等
 
     //容错box的按钮容器及单选部件
     failoverRadioBox = new QButtonGroup(this);//按钮组容器直接继承QObject，不是可显示的widget
-    failoverL = new QRadioButton("L(7%)");
-    failoverM = new QRadioButton("M(15%)");
-    failoverQ = new QRadioButton("Q(25%)");
-    failoverH = new QRadioButton("H(30%)");
+    failoverL = new QRadioButton(tr("L(7%)"));
+    failoverM = new QRadioButton(tr("M(15%)"));
+    failoverQ = new QRadioButton(tr("Q(25%)"));
+    failoverH = new QRadioButton(tr("H(30%)"));
     failoverM->setChecked(true);//默认选中M容错级别
     failoverRadioBox->addButton(failoverL,0);//添加按钮到按钮组，并为按钮设置Id
     failoverRadioBox->addButton(failoverM,1);
     failoverRadioBox->addButton(failoverQ,2);
     failoverRadioBox->addButton(failoverH,3);
     QGridLayout *failoverGridLayout = new QGridLayout();
-    failoverGridLayout->addWidget(failoverL,0,0);//添加到按钮组的部件同样可以添加到布局中
-    failoverGridLayout->addWidget(failoverM,0,1);//按钮组是一个不可显示的容器类，它在逻辑上将按钮归组
-    failoverGridLayout->addWidget(failoverQ,1,0);//但按钮的实际位置可以任意
+    /*添加到按钮组的部件同样可以添加到布局中,按钮组是一个不可显示的容器类，
+     * 它在逻辑上将按钮归组,但按钮的实际位置可以任意*/
+    failoverGridLayout->addWidget(failoverL,0,0);
+    failoverGridLayout->addWidget(failoverM,0,1);
+    failoverGridLayout->addWidget(failoverQ,1,0);
     failoverGridLayout->addWidget(failoverH,1,1);
     failoverBox->setLayout(failoverGridLayout);
 
@@ -89,28 +91,29 @@ QRcodeWidget::QRcodeWidget(QWidget *parent)
     scaleNumber = new QDoubleSpinBox(this);
     scaleNumber->setMinimum(1.0);//设置最小值和最大值
     scaleNumber->setMaximum(10.0);
-    //步长由0.1改为0.2，因为缩放比例小数点后为奇数时如5.7，画图可能有偏差，出现干扰线，
-    scaleNumber->setSingleStep(0.2);//经过测试感觉可能是qt绘图自身的问题
+    /* 步长由0.1改为0.2，因为缩放比例小数点后为奇数时如5.7，画图可能有偏差，
+     * 出现干扰线，经过测试感觉可能是qt绘图自身的问题*/
+    scaleNumber->setSingleStep(0.2);
     scaleNumber->setDecimals(1);//设置精度 小数点位数
     scaleNumber->setValue(5.0);//设置默认缩放比例
     QFormLayout *versionAndScaleFormLayout = new QFormLayout();
     versionAndScaleFormLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-    versionAndScaleFormLayout->addRow("版本号：",versionBox);
-    versionAndScaleFormLayout->addRow("缩放比例：",scaleNumber);
+    versionAndScaleFormLayout->addRow(tr("版本号："),versionBox);
+    versionAndScaleFormLayout->addRow(tr("缩放比例："),scaleNumber);
     versionAndScaleBox->setLayout(versionAndScaleFormLayout);
 
     //生成QRcodeBox中的部件
     QGridLayout *produceGridLayout = new QGridLayout();
-    setColorBtn = new QPushButton("颜色",this);
+    setColorBtn = new QPushButton(tr("颜色"),this);
     colorBtn = new QPushButton("",this);
     //设置显示颜色的按钮的大小策略，水平忽视，否则有文本和无文本，在布局中大小不同
     colorBtn->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Fixed);
     colorBtn->setStyleSheet("background-color:"+color.name());
-    iconBtn = new QPushButton("图标",this);
+    iconBtn = new QPushButton(tr("图标"),this);
     iconAddrDisplay = new QLineEdit(this);
     //iconAddrDisplay->setEnabled(false);
-    produceQRcodeBtn = new QPushButton("生成",this);
-    saveImageBtn = new QPushButton("保存",this);
+    produceQRcodeBtn = new QPushButton(tr("生成"),this);
+    saveImageBtn = new QPushButton(tr("保存"),this);
     produceGridLayout->addWidget(setColorBtn,0,0);
     produceGridLayout->addWidget(colorBtn,0,1);
     produceGridLayout->addWidget(iconBtn,1,0);
@@ -121,7 +124,7 @@ QRcodeWidget::QRcodeWidget(QWidget *parent)
 
     //解析QRcodeBox中的部件
     QGridLayout *parseGridLayout = new QGridLayout();
-    selectImageBtn = new QPushButton("选择图片",this);
+    selectImageBtn = new QPushButton(tr("选择图片"),this);
     imageAddrDisplay = new QLineEdit(this);
     parseGridLayout->addWidget(selectImageBtn,0,0);
     parseGridLayout->addWidget(imageAddrDisplay,0,1);
@@ -159,7 +162,7 @@ QRcodeWidget::QRcodeWidget(QWidget *parent)
     connect(selectImageBtn,SIGNAL(clicked()),this,SLOT(parseImageSlot()));
 
     //初始化一个二维码，本人新浪微博主页，图标采用资源文件嵌入到程序中,避免程序发布时还需要附件图片文件
-    qrcodeBox->generateString("http://m.weibo.cn/u/1832088940",4,1,5.0,Qt::black,":/icon/icon1.png");
+    qrcodeBox->generateString(tr("http://m.weibo.cn/u/1832088940"),4,1,5.0,Qt::black,":/icon/icon1.png");
 }
 
 QRcodeWidget::~QRcodeWidget()
@@ -174,7 +177,7 @@ QRcodeWidget::~QRcodeWidget()
 void QRcodeWidget::setQRcodeColorSlot()
 {
     //colorBtn->setText("");
-    color = QColorDialog::getColor(Qt::black,this,"选择颜色");
+    color = QColorDialog::getColor(Qt::black,this,tr("选择颜色"));
     if(!colorRandFlag)
     {
         colorBtn->setStyleSheet("background-color:"+color.name());
@@ -190,7 +193,7 @@ void QRcodeWidget::produceQRcodeSlot()
     QString text = textEdit->toPlainText();//获取输入的纯文本,无输入则返回空的字符串
     if(text.isEmpty())
     {
-        QMessageBox::information(this,"QR_code 1.0.0","请输入要编码的内容！");
+        QMessageBox::information(this,tr("QR_code 1.0.0"),tr("请输入要编码的内容！"));
         return;
     }
     if(colorRandFlag)//如果启动了颜色随机
@@ -246,7 +249,7 @@ void QRcodeWidget::setIconSlot()
 {
     //执行打开文件对话框会打印输出“onecoreuap\shell\ext\thumbnailcache\lib\thumbcacheapi.cpp(285)\thumbcache.dll
     //"!59E1FEFF: (caller: 59E0EF51) ReturnHr(21) tid(2fe0) 80004005 未指定的错误,可能是win10库的缘故
-    iconAddr = QFileDialog::getOpenFileName(this,"选择图标","./icon","(*.png *.jpg *.ico *.bmp)");
+    iconAddr = QFileDialog::getOpenFileName(this,tr("选择图标"),"./icon","(*.png *.jpg *.ico *.bmp)");
     iconAddrDisplay->setText(iconAddr);
 }
 /*
@@ -256,18 +259,18 @@ void QRcodeWidget::setIconSlot()
  */
 void QRcodeWidget::saveImageSlot()
 {
-    QString saveImagename = QFileDialog::getSaveFileName(this,"保存图片","./image/二维码.png","(*.png *.jpg *.bmp)");
+    QString saveImagename = QFileDialog::getSaveFileName(this,tr("保存图片"),tr("./image/二维码.png"),"(*.png *.jpg *.bmp)");
     if(saveImagename.isEmpty())//如果取消保存对话框返回空的字符串
     {
         return;
     }
     if(qrcodeBox->saveImage(saveImagename,400))
     {
-        QMessageBox::information(this,"QR_code 1.0.0","图片已成功保存！");
+        QMessageBox::information(this,"QR_code 1.0.0",tr("图片已成功保存！"));
     }
     else
     {
-        QMessageBox::information(this,"QR_code 1.0.0","图片保存失败！");
+        QMessageBox::information(this,"QR_code 1.0.0",tr("图片保存失败！"));
     }
 }
 /*
@@ -277,7 +280,7 @@ void QRcodeWidget::saveImageSlot()
  */
 void QRcodeWidget::parseImageSlot()
 {
-    QString imageAddr = QFileDialog::getOpenFileName(this,"选择二维码图片","./image","(*.png *.jpg *.jpeg *.bmp)");
+    QString imageAddr = QFileDialog::getOpenFileName(this,tr("选择二维码图片"),"./image","(*.png *.jpg *.jpeg *.bmp)");
     if(imageAddr.isEmpty())//如果取消打开对话框返回空的字符串
     {
         return;
@@ -286,7 +289,7 @@ void QRcodeWidget::parseImageSlot()
     QImage image(imageAddr);
     if(image.isNull())//图片加载失败函数返回
     {
-        QMessageBox::information(this,"QR_code 1.0.0","加载图片失败，请确认图片格式！");
+        QMessageBox::information(this,"QR_code 1.0.0",tr("加载图片失败，请确认图片格式！"));
         return;
     }
     else
@@ -299,7 +302,7 @@ void QRcodeWidget::parseImageSlot()
         QString parseText = zxing->decodeImage(image);
         if(parseText.isEmpty())
         {
-            QMessageBox::information(this,"QR_code 1.0.0","未从图片中扫描到二维码。");
+            QMessageBox::information(this,"QR_code 1.0.0",tr("未从图片中扫描到二维码。"));
         }
         else
         {
